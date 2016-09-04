@@ -24,7 +24,6 @@ function M.pack(opt)
     }
     local directory, imsize, packsize = check(opt)
 
-    paths.mkdir('package')
     -- # of files in the directory
     local N = tonumber(sys.fexecute('ls '..directory..' | wc -l'))
 
@@ -32,6 +31,7 @@ function M.pack(opt)
     local classname = paths.basename(directory)
     print('packing '..directory..' into '..classname)
 
+    paths.mkdir('package')
     local package = torch.Tensor(packsize, 3, imsize, imsize)
     local i = 0
     for name in paths.iterfiles(directory) do
@@ -52,10 +52,10 @@ function M.pack(opt)
                 package = package[{ {1,lastN} }]
                 torch.save('./package/'..classname..'_'..pidx..'.t7', package)
             end
-        else
-            print('==> [ERROR] '..name..' cannot be loaded!')
         end
     end
+
+    print('\n==> '..i..' files are packed, '..(N-i)..' files are ommited.')
 end
 
 return M

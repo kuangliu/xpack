@@ -7,4 +7,4 @@ packer.pack{
     packsize = 900
 }
 
-a = torch.load('./package/airplane_2.t7')
+-- a = torch.load('./package/airplane_2.t7')
