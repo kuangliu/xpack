@@ -35,10 +35,10 @@ function M.pack(opt)
     for i,class in pairs(classes) do
         print('==> parsing '..class)
         -- collect image path to pathfile
-        os.execute('ls '..class..'*.jpg > '..pathfile)
+        os.execute('find '..class..' -name "*.jpg" > '..pathfile)
         -- attach class index to the end of each path
         os.execute('awk \'{print $0, "'..i..'"}\' '..pathfile..' > '..listfile)
-        -- concat listfiles to form a big one
+        -- concat listfiles together
         os.execute('cat '..listfile..' >> '..catfile)
     end
 
