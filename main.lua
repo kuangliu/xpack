@@ -3,7 +3,7 @@ packer = dofile('./pack.lua')
 packer.pack{
     directory='/mnt/hgfs/D/dataset/cifar10/train/',
     imsize=32,
-    packsize = 10000
+    packsize = 1000
 }
 
 -- packer.pack{

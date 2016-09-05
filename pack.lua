@@ -26,28 +26,33 @@ function M.pack(opt)
 
     -- list all subfolders/classes
     local folders = sys.execute('ls -d '..directory..'*/')
-    local classes = string.split(folders, '\n') -- split string to table
+    local classes = string.split(folders, '\n')   -- split string to table
 
     -- loop each subfolder to collect images
-    local listfile = os.tmpname()
+    local pathfile = os.tmpname()   -- containing image paths
+    local listfile = os.tmpname()   -- containing image paths and targets
+    local catfile = os.tmpname()    -- concat different listfiles
     for i,class in pairs(classes) do
         print('==> parsing '..class)
         -- collect image path to pathfile
-        local pathfile = os.tmpname()
         os.execute('ls '..class..'*.jpg > '..pathfile)
-        -- attach class to the end of each path
-        local outfile = os.tmpname()
-        os.execute('awk \'{print $0, "'..i..'"}\' '..pathfile..' > '..outfile)
-        -- cat to build a big list file
-        os.execute('cat '..outfile..' >> '..listfile)
+        -- attach class index to the end of each path
+        os.execute('awk \'{print $0, "'..i..'"}\' '..pathfile..' > '..listfile)
+        -- concat listfiles to form a big one
+        os.execute('cat '..listfile..' >> '..catfile)
     end
 
     M.packlist{
         directory='',  -- as list contains complete path, so directory is empty
-        list=listfile,
+        list=catfile,
         imsize=imsize,
         packsize=packsize
     }
+
+    -- clean up temporary files
+    os.execute('rm -f '..pathfile)
+    os.execute('rm -f '..listfile)
+    os.execute('rm -f '..catfile)
 end
 
 ------------------------------------------------------------------
@@ -117,6 +122,7 @@ function M.packlist(opt)
         end
     end
     f:close()
+    os.execute('rm -f '..shuffled)  -- clean up temporary file
     print('\n==> '..i..' files packed, '..(N-i)..' files ommited.')
 end
 
