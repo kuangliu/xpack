@@ -1,10 +1,22 @@
 packer = dofile('./pack.lua')
 
--- packer.pack('/mnt/hgfs/D/dataset/cifar10/test/airplane/', 32)
 packer.pack{
-    directory='../dataset/cifar-class/test/airplane/',
+    directory='/mnt/hgfs/D/dataset/cifar10/train/',
     imsize=32,
-    packsize = 900
+    packsize = 10000
 }
 
--- a = torch.load('./package/airplane_2.t7')
+-- packer.pack{
+--     directory='../dataset/cifar-class/test/airplane/',
+--     imsize=32,
+--     packsize = 900
+-- }
+
+-- packer.packlist{
+--     directory='./images/',
+--     list='./images/names.txt',
+--     imsize=32,
+--     packsize = 1000
+-- }
+--
+-- a = torch.load('./package/pkg_1.t7')
