@@ -70,8 +70,10 @@ function M.packlist(opt)
 
     -- shuffle list file
     print('==> shuffing list..')
+    -- if it's macos, use gshuf from GNU coreutils
+    local shuf = sys.uname()=='macos' and 'gshuf' or 'shuf'
     local shuffled = os.tmpname()
-    sys.execute('shuf '..list..' > '..shuffled)
+    os.execute(shuf..' '..list..' > '..shuffled)
     local N = tonumber(sys.execute('wc -l < '..shuffled))
 
     -- parse name & targets line by line
