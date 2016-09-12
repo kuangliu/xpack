@@ -1,10 +1,10 @@
 packer = dofile('./pack.lua')
 
 packer.pack{
-    directory='/mnt/hgfs/D/dataset/cifar10/train/',
+    directory='/mnt/hgfs/D/dataset/cifar10/test/',
     imsize=32,
-    packsize = 1000,
-    prefix='train'
+    packsize=10000,
+    prefix='test'
 }
 
 -- packer.packlist{

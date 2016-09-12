@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------
--- This module packs individual images into big continuous packages for
--- fast data accessing. Only image resizing is performed.
+-- PACK packs individual images into big continuous packages for fast data
+-- accessing. Only image resizing is performed.
 ----------------------------------------------------------------------------
 
 require 'xlua'
@@ -10,7 +10,6 @@ local argcheck = require 'argcheck'
 local M = {}
 local pathcat = paths.concat
 
---TODO: use charTensor to save space
 torch.setdefaulttensortype('torch.FloatTensor')
 
 ------------------------------------------------------------------
@@ -19,11 +18,13 @@ torch.setdefaulttensortype('torch.FloatTensor')
 --
 function M.pack(opt)
     local check = argcheck{
+        pack=true,
         {name='directory', type='string', help='directory containing image folders'},
         {name='imsize', type='number', help='image target size'},
         {name='packsize', type='number', help='# of images per package', default=10000},
         {name='prefix', type='string', help='package saving as prefix_idx.t7'}
     }
+    opt = check(opt)
 
     -- list all subfolders/classes
     local folders = sys.execute('ls -d '..opt.directory..'*/')
@@ -63,15 +64,17 @@ end
 --
 function M.packlist(opt)
     local check = argcheck{
+        pack=true,
         {name='directory', type='string', help='image root directory'},
         {name='list', type='string', help='list file'},
         {name='imsize', type='number', help='image target size'},
         {name='packsize', type='number', help='# of images per package', default=10000},
-        {name='prefix', type='string', help='package saving as prefix_idx.t7'}
+        {name='prefix', type='string', help='package saving as ./package/prefix/prefix_idx.t7'}
     }
+    opt = check(opt)
 
     -- shuffle list file
-    print('==> shuffing list..')
+    print('==> shuffling list..')
     -- if it's macos, use gshuf from GNU coreutils
     local shuf = sys.uname()=='macos' and 'gshuf' or 'shuf'
     local shuffled = os.tmpname()
@@ -80,8 +83,10 @@ function M.packlist(opt)
 
     -- parse name & targets line by line
     print('==> packing..')
-    paths.mkdir('package')
-    local images = torch.Tensor(opt.packsize, 3, opt.imsize, opt.imsize)
+    paths.mkdir('./package/'..opt.prefix)
+
+    -- use ByteTensor instead of FloatTensor to cut the space usage
+    local images = torch.ByteTensor(opt.packsize, 3, opt.imsize, opt.imsize)
     local targets
 
     local f = assert(io.open(shuffled, 'r'))
@@ -98,7 +103,7 @@ function M.packlist(opt)
 
             -- pack images
             local ii = 1 + (i-1) % opt.packsize  -- index within a package
-            images[ii] = image.scale(im, opt.imsize, opt.imsize)
+            images[ii]:copy(image.scale(im, opt.imsize, opt.imsize):mul(255))
 
             -- pack targets
             local target = {}
@@ -111,8 +116,8 @@ function M.packlist(opt)
             if i % opt.packsize == 0 then
                 -- save packages have packsize files
                 pidx = (pidx or 0) + 1  -- package index
-                local package = { X = images, Y = targets }
-                torch.save('./package/'..opt.prefix..'_'..pidx..'.t7', package)
+                local package = { X=images, Y=targets }
+                torch.save(pathcat('package', opt.prefix, 'part_'..pidx..'.t7'), package)
             elseif i == N then
                 -- save the last package that has < packsize files
                 local lastN = N % opt.packsize  -- # of files in the last package
@@ -120,11 +125,20 @@ function M.packlist(opt)
                 targets = targets[{ {1,lastN} }]
 
                 pidx = (pidx or 0) + 1
-                local package = { X = images, Y = targets }
-                torch.save('./package/'..opt.prefix..'_'..pidx..'.t7', package)
+                local package = { X=images, Y=targets }
+                torch.save(pathcat('package', opt.prefix, 'part_'..pidx..'.t7'), package)
             end
         end
     end
+
+    -- save package meta data
+    torch.save(pathcat('package', opt.prefix..'.t7'), {
+        imsize=opt.imsize,
+        packsize=opt.packsize,
+        prefix=opt.prefix,
+        N=N
+    })
+
     f:close()
     os.execute('rm -f '..shuffled)  -- clean up temporary file
     print('\n==> '..i..' files packed, '..(N-i)..' files ommited.')
