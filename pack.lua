@@ -12,7 +12,7 @@ local pathcat = paths.concat
 
 torch.setdefaulttensortype('torch.FloatTensor')
 
-------------------------------------------------------------------
+---------------------------------------------------------------------------
 -- pack images organized in subfolders, the subfolder name is the
 -- class name.
 --
@@ -58,7 +58,7 @@ function M.pack(opt)
     os.execute('rm -f '..catfile)
 end
 
-------------------------------------------------------------------
+---------------------------------------------------------------------------
 -- pack images based on a list file, containing image path and
 -- targets separated by spaces.
 --
@@ -130,14 +130,6 @@ function M.packlist(opt)
             end
         end
     end
-
-    -- save package meta data
-    torch.save(pathcat('package', opt.prefix..'.t7'), {
-        imsize=opt.imsize,
-        packsize=opt.packsize,
-        prefix=opt.prefix,
-        N=N
-    })
 
     f:close()
     os.execute('rm -f '..shuffled)  -- clean up temporary file
