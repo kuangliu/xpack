@@ -23,7 +23,6 @@ function M.pack(opt)
         {name='imsize', type='number', help='image target size'},
         {name='packsize', type='number', help='# of images per package', default=10000},
         {name='prefix', type='string', help='package saving as prefix_idx.t7'},
-        -- {name='nhorse', type='number', help='# of threads(horses) to pack the data', defalut=1}
     }
     opt = check(opt)
 
