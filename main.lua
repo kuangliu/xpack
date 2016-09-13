@@ -1,10 +1,10 @@
 -- packer = dofile('./pack.lua')
 --
 -- packer.pack{
---     directory='/mnt/hgfs/D/dataset/cifar10/test/',
+--     directory='/mnt/hgfs/D/dataset/cifar10/train/',
 --     imsize=32,
---     packsize=3000,
---     prefix='test'
+--     packsize=10000,
+--     prefix='train'
 -- }
 
 -- packer.packlist{
@@ -18,4 +18,19 @@
 
 dofile('./packloader.lua')
 
-packloader = PackLoader{ directory='./package/', prefix='test', packsize=10000 }
+packloader = PackLoader{ prefix='train' }
+
+
+x,y = packloader:sample(1)
+print(#x, #y)
+
+x,y = packloader:sample(1)
+print(#x, #y)
+
+x,y = packloader:sample(3)
+print(#x, #y)
+
+-- for i = 1,9900 do
+--     print(i)
+--     x,y = packloader:get(i,i+100)
+-- end

@@ -22,7 +22,8 @@ function M.pack(opt)
         {name='directory', type='string', help='directory containing image folders'},
         {name='imsize', type='number', help='image target size'},
         {name='packsize', type='number', help='# of images per package', default=10000},
-        {name='prefix', type='string', help='package saving as prefix_idx.t7'}
+        {name='prefix', type='string', help='package saving as prefix_idx.t7'},
+        -- {name='nhorse', type='number', help='# of threads(horses) to pack the data', defalut=1}
     }
     opt = check(opt)
 
@@ -73,6 +74,9 @@ function M.packlist(opt)
     }
     opt = check(opt)
 
+    -- mkdir for package saving
+    paths.mkdir('./package/'..opt.prefix)
+
     -- shuffle list file
     print('==> shuffling list..')
     -- if it's macos, use gshuf from GNU coreutils
@@ -83,8 +87,6 @@ function M.packlist(opt)
 
     -- parse name & targets line by line
     print('==> packing..')
-    paths.mkdir('./package/'..opt.prefix)
-
     -- use ByteTensor instead of FloatTensor to cut the space usage
     local images = torch.ByteTensor(opt.packsize, 3, opt.imsize, opt.imsize)
     local targets
@@ -130,10 +132,17 @@ function M.packlist(opt)
             end
         end
     end
-
     f:close()
-    os.execute('rm -f '..shuffled)  -- clean up temporary file
-    print('\n==> '..i..' files packed, '..(N-i)..' files ommited.')
+    print('\n==> '..i..' files packed, '..(N-i)..' files ommitted.')
+
+    -- save some package info
+    torch.save(pathcat('package', opt.prefix..'.t7'), {
+        N=i,
+        imsize=opt.imsize,
+        packsize=opt.packsize,
+        prefix=opt.prefix,
+        list=shuffled
+    })
 end
 
 return M
