@@ -1,18 +1,18 @@
 packer = dofile('./pack.lua')
 
--- packer.pack{
---     directory='/mnt/hgfs/D/dataset/cifar10/train/',
---     imsize=32,
---     packsize=10000,
---     prefix='train'
--- }
-
-packer.packsplit{
+packer.pack{
     directory='/mnt/hgfs/D/dataset/cifar10/train/',
     imsize=32,
     packsize=10000,
-    partition={train=0.8, test=0.2}
+    prefix='train'
 }
+
+-- packer.packsplit{
+--     directory='/mnt/hgfs/D/dataset/cifar10/train/',
+--     imsize=32,
+--     packsize=10000,
+--     partition={train=0.8, test=0.2}
+-- }
 
 -- packer.packlist{
 --     directory='./images/',

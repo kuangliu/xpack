@@ -2,8 +2,7 @@
 Yet another data loading module for Torch.  
 
 We adopt the [MXNet](https://mxnet.readthedocs.io/en/latest/system/note_data_loading.html)
-data loading philosophy which packs raw images into big packages that can still be loaded into memory one by one.
-And instead of loading raw images, loading bigger continuous packages should be more efficient.
+data loading policy that packs raw images into big packages, which still can be loaded into memory. And instead of loading raw images, loading bigger continuous packages should be more efficient.
 
 ## `pack`
 Pack images organized in sub-folders, the sub-folder name is the class name.
@@ -21,11 +20,12 @@ packer.pack{
 - `directory`: directory containing all the class folders
 - `imsize`: image target size
 - `packsize`: # of images per package
-- `prefix`: train/test
+- `prefix`: train/test  
 
+The packages are saved as `./package/prefix/part_i.t7`.
 
 ## `packlist`
-Pack images based on the list file (each line is the image path and targets separated by lines).
+Pack images based on the list file (each line is the image path and targets separated by spaces).
 
 ```lua
 packer.packlist{
@@ -38,7 +38,8 @@ packer.packlist{
 ```
 
 ## `packsplit`
-Unlike `pack`, `packsplit` first split dataset into train/val/test set, and pack them individually.
+Unlike `pack`, `packsplit` first splits the dataset by the `partition` table, and pack them individually.  
+Internally, it splits the list file and uses `packlist` to pack the images.
 
 ```lua
 packer.packsplit{
@@ -48,8 +49,6 @@ packer.packsplit{
     partition={train=0.8, test=0.2}
 }
 ```
-`packsplit` splits dataset based on the `partition` table.  
-Internally, it first splits the list file, and uses `packlist` to do the job.
 
 ## `packloader`
 `packloader` loads saved packages, and provides `sample` and `get` interfaces for training.
@@ -58,7 +57,7 @@ Internally, it first splits the list file, and uses `packlist` to do the job.
 dofile('./packloader.lua')
 
 trainloader = PackLoader{ prefix='train' }
-x,y = trainloader:sample(100)
+x, y = trainloader:sample(100)
 print(#x)
 print(#y)
 ```
