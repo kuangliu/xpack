@@ -17,8 +17,11 @@ local pathcat = paths.concat
 
 function PackLoader:__init(opt)
     local check = argcheck{
+        pack=true,
         {name='prefix', type='string', help='package prefix'}
     }
+    opt = check(opt)
+
     -- parse package info
     local info = torch.load(pathcat('package', opt.prefix..'.t7'))
     self.N = info.N
@@ -47,7 +50,9 @@ function PackLoader:__shuffleBatch(quantity)
     local N = self.package.X:size(1)
     assert(quantity <= N, 'quantity is too large!')
     self.batchorder = torch.randperm(N):long():split(quantity)
-    self.batchorder[#self.batchorder] = nil
+    if self.batchorder[#self.batchorder]:numel() ~= quantity then
+        self.batchorder[#self.batchorder] = nil
+    end
     self.batchidx = 1
 end
 
