@@ -2,12 +2,12 @@
 -- PACKLOADER loads packages, providing sample & get functions for training.
 ----------------------------------------------------------------------------
 
-require 'os';
-require 'sys';
-require 'xlua';
-require 'image';
-require 'torch';
-require 'paths';
+require 'os'
+require 'sys'
+require 'xlua'
+require 'image'
+require 'torch'
+require 'paths'
 local argcheck = require 'argcheck'
 
 torch.setdefaulttensortype('torch.FloatTensor')

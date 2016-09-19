@@ -178,15 +178,15 @@ function M.__split(opt)
         os.execute('awk \'{print $0, "'..i..'"}\' '..pathfile..' > '..listfile)
         -- split listfile into categories
         local nlines = tonumber(sys.execute('wc -l < '..listfile))
-        local left = 0    -- left boundary
-        local right = 0   -- right boundary
+        local i1 = 0      -- start index
+        local i2 = 0      -- end index
         local acc = 0     -- accumulated ratio
         for k,v in pairs(opt.partition) do
             acc = acc + v
-            left = right + 1
-            right = math.ceil(nlines*acc)
-            -- split listfile lines between [left, right] into lists[k]
-            os.execute('head -n '..right..' '..listfile..' | tail -n '..(right-left+1)..' >> '..lists[k])
+            i1 = i2 + 1
+            i2 = math.ceil(nlines*acc)
+            -- split listfile lines between [i1, i2] into lists[k]
+            os.execute('head -n '..i2..' '..listfile..' | tail -n +'..i1..' >> '..lists[k])
         end
     end
     return lists

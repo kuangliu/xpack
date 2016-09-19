@@ -38,8 +38,8 @@ packer.packlist{
 ```
 
 ## `packsplit`
-Unlike `pack`, `packsplit` first splits the dataset by the `partition` table, and pack them individually.  
-Internally, it splits the list file and uses `packlist` to pack the images.
+Unlike `pack`, `packsplit` splits the dataset first by the `partition` table, and pack them individually.  
+Internally, it splits the list file and uses `packlist` to pack.
 
 ```lua
 packer.packsplit{
