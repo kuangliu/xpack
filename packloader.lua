@@ -61,6 +61,7 @@ end
 function PackLoader:__loadPackage()
     local pidx = self.packorder[self.packidx]
     self.package = torch.load(pathcat(self.directory, self.prefix, 'part_'..pidx..'.t7'))
+    self.package.X = self.package.X:float():div(255)  -- convert to FloatTensor
 end
 
 ---------------------------------------------------------------------------
@@ -89,8 +90,8 @@ function PackLoader:sample(quantity)
     local images = self.package.X:index(1,v)
     local targets = self.package.Y:index(1,v)
 
-    self.batchidx = self.batchidx + 1        -- increase batchidx
-    return images:float():div(255), targets  -- convert to FloatTensor
+    self.batchidx = self.batchidx + 1  -- increase batchidx
+    return images, targets
 end
 
 ---------------------------------------------------------------------------
