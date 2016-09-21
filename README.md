@@ -56,7 +56,10 @@ packer.packsplit{
 ```lua
 dofile('./packloader.lua')
 
-trainloader = PackLoader{ prefix='train' }
+trainloader = PackLoader{
+    directory='./package/',
+    prefix='train'
+}
 x, y = trainloader:sample(100)
 print(#x)
 print(#y)

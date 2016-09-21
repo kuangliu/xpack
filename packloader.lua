@@ -17,19 +17,18 @@ local pathcat = paths.concat
 
 function PackLoader:__init(opt)
     local check = argcheck{
-        pack=true,
+        {name='directory', type='string', help='package directory'},
         {name='prefix', type='string', help='package prefix'}
     }
-    opt = check(opt)
+    self.directory, self.prefix = check(opt)
 
     -- parse package info
-    local info = torch.load(pathcat('package', opt.prefix..'.t7'))
+    local info = torch.load(pathcat(self.directory, self.prefix..'.t7'))
     self.N = info.N
-    self.prefix = info.prefix
     self.packsize = info.packsize
 
     -- # of packages
-    self.npack = tonumber(sys.execute('ls '..pathcat('package', self.prefix)..' | wc -l'))
+    self.npack = tonumber(sys.execute('ls '..pathcat(self.directory, self.prefix)..' | wc -l'))
     assert(self.npack > 0, 'No package found!')
     assert(self.npack == math.ceil(self.N/self.packsize), 'Check the # of packages!')
 end
@@ -61,7 +60,7 @@ end
 --
 function PackLoader:__loadPackage()
     local pidx = self.packorder[self.packidx]
-    self.package = torch.load(pathcat('package', self.prefix, 'part_'..pidx..'.t7'))
+    self.package = torch.load(pathcat(self.directory, self.prefix, 'part_'..pidx..'.t7'))
 end
 
 ---------------------------------------------------------------------------
@@ -106,7 +105,7 @@ function PackLoader:get(i1,i2)
 
     if self.packidx ~= pidx1 then
         self.packidx = pidx1
-        self.package = torch.load(pathcat('package', self.prefix, 'part_'..pidx1..'.t7'))
+        self.package = torch.load(pathcat(self.directory, self.prefix, 'part_'..pidx1..'.t7'))
     end
 
     local images, targets
@@ -121,7 +120,7 @@ function PackLoader:get(i1,i2)
         local targets1 = self.package.Y[{ {j1, N} }]
 
         self.packidx = pidx2
-        self.package = torch.load(pathcat('package', self.prefix, 'part_'..pidx2..'.t7'))
+        self.package = torch.load(pathcat(self.directory, self.prefix, 'part_'..pidx2..'.t7'))
         local images2 = self.package.X[{ {1, j2} }]
         local targets2 = self.package.Y[{ {1, j2} }]
 
