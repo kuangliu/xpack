@@ -64,3 +64,21 @@ x, y = trainloader:sample(100)
 print(#x)
 print(#y)
 ```
+
+## `packloader` vs. `dataloader`
+Multi-thread dynamic dataloader like `listdataloader`, `classdataloader` is great, and works really well.
+
+Let's take an example, VGGNet takes nearly `1` second to train a batch with `128` samples. And loading `128` samples from a normal HDD disk needs nearly `2` seconds.
+- training time: `tt = 1`
+- data time: `dt = 2`
+
+
+So how many threads do we need to avoid the data loading overhead? `dt/tt=2/1=2`.  
+In my experiment, with only `2` threads, the overhead time decrease to `< 1ms`. And in the whole data loading + training process, the only bottleneck is the training time.
+
+For `packloader`, with a single thread, loading a `128` sized batch from a package takes `10ms`, and with `2` threads, the overhead time `< 3ms`.
+
+So when we prefer `packloader`?  
+Let's say the data loading time `dt=2` seconds, as we use a simple CNN that only needs `tt=100ms` per batch training. If we can't afford `dt/tt=20` threads, say at most `8` threads, then the data loading is the bottleneck of the whole process. That's when `packloader` is preferred.  
+So when data loading overhead is the main issue of the training process, consider use `packloader`.
+> It's seems it's really rare that `packloader` could be used...not to mention the long and frustrating data packing time... Damn!
