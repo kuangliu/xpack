@@ -78,7 +78,12 @@ In my experiment, with only `2` threads, the overhead time decrease to `< 1ms`. 
 
 For `packloader`, with a single thread, loading a `128` sized batch from a package takes `10ms`, and with `2` threads, the overhead time `< 3ms`.
 
-So when we prefer `packloader`?  
-Let's say the data loading time `dt=2` seconds, as we use a simple CNN that only needs `tt=100ms` per batch training. If we can't afford `dt/tt=20` threads, say at most `8` threads, then the data loading is the bottleneck of the whole process. That's when `packloader` is preferred.  
-So when data loading overhead is the main issue of the training process, consider use `packloader`.
-> It's seems it's really rare that `packloader` could be used...not to mention the long and frustrating data packing time... Damn!
+### when prefer `packloader`
+Take [xlandmark](https://github.com/kuangliu/xlandmark) for example:  
+- In my experiment, it takes nearly `dt = 4` seconds to load `128` images from disk.
+- And as the CNN is really simple, the training time is only `dt = 70ms` for each batch.
+- `dt/tt=4/0.07=57`, that's too many threads to allocate.
+- Say at most `8` threads this time, then the data loading is the bottleneck of the whole process.
+- That's when `packloader` is preferred, it only need nearly `100ms` for the whole process.  
+
+So when the data loading overhead is the main issue of the training process, consider using `packloader`.
